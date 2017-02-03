@@ -1,4 +1,4 @@
-/usr/local/google/home/pacquah/Starter/versioned/starter/starter/src/main/java/com/example/guestbook/Greeting.java
-/usr/local/google/home/pacquah/Starter/versioned/starter/starter/src/main/java/com/example/guestbook/SignGuestbookServlet.java
-/usr/local/google/home/pacquah/Starter/versioned/starter/starter/src/main/java/com/example/guestbook/Guestbook.java
-/usr/local/google/home/pacquah/Starter/versioned/starter/starter/src/main/java/com/example/guestbook/OfyHelper.java
+/usr/local/google/home/pacquah/Starter/versioned/starter/starter/src/main/java/com/example/starter/Guestbook.java
+/usr/local/google/home/pacquah/Starter/versioned/starter/starter/src/main/java/com/example/starter/ImagesServlet.java
+/usr/local/google/home/pacquah/Starter/versioned/starter/starter/src/main/java/com/example/starter/OfyHelper.java
+/usr/local/google/home/pacquah/Starter/versioned/starter/starter/src/main/java/com/example/starter/Post.java
