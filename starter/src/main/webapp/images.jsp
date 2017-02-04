@@ -90,18 +90,34 @@
     }
 %>
 
+<%-- // Post Greeting / Upload file form --%>
+<h2> Upload an image </h2>
 <form action="/sign" method="post">
     <div><textarea name="content" rows="3" cols="60"></textarea></div>
     <div><input type="submit" value="Post Greeting"/></div>
     <input type="hidden" name="guestbookName" value="${fn:escapeXml(guestbookName)}"/>
+    <div>
+            Bucket: <input type="text" name="bucket" />
+            File Name: <input type="text" name="fileName" />
+            <br /> File Contents:
+            
+            <input type="file" name="pic" id="pic" accept="image/*">
+            <br />
+            <input type="submit" onclick='uploadFile(this)' value="Upload Content" />
+    </div>
+
 </form>
+
 <%-- //[END datastore]--%>
+<hr>
+<%-- // Switch Guestbook Form --%>
 <form action="/images.jsp" method="get">
     <div><input type="text" name="guestbookName" value="${fn:escapeXml(guestbookName)}"/></div>
     <div><input type="submit" value="Switch Guestbook"/></div>
     <div> <input type="button" value="Added button" onclick='uploadFile(this)'/>  </div>
 </form>
 
+<% // Working upload file form --%>
 <form action="/index.html" enctype="multipart/form-data" method="get" name="putFile" id="putFile">
           <div>
             Bucket: <input type="text" name="bucket" />

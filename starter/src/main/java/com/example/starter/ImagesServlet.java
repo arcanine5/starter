@@ -52,10 +52,19 @@ public class ImagesServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();  // Find out who the user is.
 
+    // Fetch HTTP POST query string pairs
     String guestbookName = req.getParameter("guestbookName");
     String content = req.getParameter("content");
+    String bucketName = req.getParameter("bucket");
+    String filename = req.getParameter("fileName");
+    
+    System.out.println("Recieved POST with bucket: " + bucketName + 
+        " filename: " + filename);
+    
+    
     if (user != null) {
-      greeting = new Post(guestbookName, content, user.getUserId(), user.getEmail());
+      greeting = new Post(guestbookName, content, user.getUserId(), user.getEmail(),
+          "/gcs/" + bucketName + "/" + filename );
     } else {
       greeting = new Post(guestbookName, content);
     }

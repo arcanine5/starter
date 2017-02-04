@@ -29,6 +29,8 @@ import java.util.List;
 
 import com.example.starter.Guestbook;
 /**
+ * An image posting.
+ * 
  * The @Entity tells Objectify about our entity.  We also register it in {@link OfyHelper}
  * Our primary key @Id is set automatically by the Google Datastore for us.
  *
@@ -48,6 +50,7 @@ public class Post {
   public String author_id;
   public String content;
   @Index public Date date;
+  public String imageFilename;
 
   /**
    * Simple constructor just sets the date
@@ -76,6 +79,14 @@ public class Post {
     this(book, content);
     author_email = email;
     author_id = id;
+  }
+  
+  /**
+   * Constructor for image posts
+   */
+  public Post(String book, String content, String id, String email, String imageFilename) {
+    this(book, content, id, email);
+    this.imageFilename = imageFilename;
   }
 
 }
