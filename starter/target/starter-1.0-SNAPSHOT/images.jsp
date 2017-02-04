@@ -91,6 +91,14 @@
 %>
 
 <%-- // Post Greeting / Upload file form --%>
+<%  
+    if (user == null) {
+%>
+Sign in to make a post
+<%
+    } else {
+%>
+
 <h2> Upload an image </h2>
 <form action="/sign" method="post">
     <div><textarea name="content" rows="3" cols="60"></textarea></div>
@@ -107,6 +115,9 @@
     </div>
 
 </form>
+<%
+    }
+%>
 
 <%-- //[END datastore]--%>
 <hr>
