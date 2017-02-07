@@ -124,6 +124,8 @@ public class ImagesServlet extends HttpServlet {
     
     if (reqURI.equals("/sign")) {
       System.out.println("Skipping POST FROM FORM");
+      System.out.println("About to redirect...");
+      resp.sendRedirect("/images.jsp?guestbookName=" + guestbookName);
       return;
     }
     
@@ -145,8 +147,9 @@ public class ImagesServlet extends HttpServlet {
     // Construct Post for Datastore
     if (user != null) {
       greeting = new Post(guestbookName, content, user.getUserId(), user.getEmail(),
-          "/gcs/" + bucketName + "/" + filename );
+          reqURI);
     } else {
+      // TODO: Remove this. Do not allow post from users not logged in
       greeting = new Post(guestbookName, content);
     }
 
@@ -165,6 +168,19 @@ public class ImagesServlet extends HttpServlet {
 
     System.out.println("About to redirect...");
     resp.sendRedirect("/images.jsp?guestbookName=" + guestbookName);
+  }
+  
+  @Override
+  public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    System.out.println("do get!!!!!\n\n");
+    
+    GcsFilename fileName = getFileName(req);
+    if (true) {
+      BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+      BlobKey blobKey = blobstoreService.createGsBlobKey(
+          "/gs/" + fileName.getBucketName() + "/" + fileName.getObjectName());
+      blobstoreService.serve(blobKey, resp);
+    } 
   }
   
   

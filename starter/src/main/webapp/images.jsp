@@ -68,7 +68,7 @@
 %>
 <p>Messages in Guestbook '${fn:escapeXml(guestbookName)}'.</p>
 <%
-      // Look at all of our greetings
+      // Display all Image posts
         for (Post greeting : greetings) {
             pageContext.setAttribute("greeting_content", greeting.content);
             String author;
@@ -82,9 +82,11 @@
                 }
             }
             pageContext.setAttribute("greeting_user", author);
+            // Construct image URL
 %>
 <p><b>${fn:escapeXml(greeting_user)}</b> wrote:</p>
 <blockquote>${fn:escapeXml(greeting_content)}</blockquote>
+<img src="<%= greeting.imageFilename %>">
 <%
         }
     }
@@ -94,7 +96,7 @@
 <%  
     if (user == null) {
 %>
-Sign in to make a post
+<p> <i> Sign in to make a post </i> </p>
 <%
     } else {
 %>
@@ -170,7 +172,7 @@ Sign in to make a post
           var postData = theFile;
 
           var request = new XMLHttpRequest();
-          request.open("POST", "/gcs/" + bucket + "/" + filename + "?gBookName=" + gBookName, false);
+          request.open("POST", "/gcs/" + bucket + "/" + filename + "?guestbookName=" + gBookName, false);
           request.setRequestHeader("Content-Type", "image/gif");
           request.send(postData);
 
