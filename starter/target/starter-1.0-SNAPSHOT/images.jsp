@@ -56,17 +56,16 @@
           .load()
           .type(Post.class) // We want only Greetings
           .ancestor(theBook)    // Anyone in this book
-          .order("-date")       // Most recent first - date is indexed.
-          .limit(5)             // Only show 5 of them.
+          .order("date")       // Most recent first - date is indexed.
           .list();
 
     if (greetings.isEmpty()) {
 %>
-<p>Guestbook '${fn:escapeXml(guestbookName)}' has no messages.</p>
+<p>Album '${fn:escapeXml(guestbookName)}' has no messages.</p>
 <%
     } else {
 %>
-<p>Messages in Guestbook '${fn:escapeXml(guestbookName)}'.</p>
+<p>Messages in Album '${fn:escapeXml(guestbookName)}'.</p>
 <%
       // Display all Image posts
         for (Post greeting : greetings) {
@@ -91,6 +90,8 @@
         }
     }
 %>
+<hr>
+<br>
 
 <%-- // Post Greeting / Upload file form --%>
 <%  
@@ -104,14 +105,14 @@
 <h2> Upload an image </h2>
 <form action="/sign" method="post" name="putFile" id="putFile">
     <div><textarea name="content" rows="3" cols="60"></textarea></div>
-    <div><input type="submit" value="Post Greeting"/></div>
-    <input type="hidden" name="guestbookName" value="${fn:escapeXml(guestbookName)}"/>
+    <div><input type="hidden" value="Post Greeting"/></div>
+    <input type="hidden" name="guestbookName" value="${fn:escapeXml(guestbookName)}" required/>
     <div>
-            Bucket: <input type="text" name="bucket" />
-            File Name: <input type="text" name="fileName" />
+            Bucket: <input type="text" name="bucket" value="runexamples.appspot.com" required />
+            File Name: <input type="text" name="fileName" required />
             <br /> File Contents:
             
-            <input type="file" name="pic" id="pic" accept="image/*">
+            <input type="file" name="pic" id="pic" accept="image/*" required>
             <br />
             <input type="submit" onclick='uploadFile(this)' value="Upload Content" />
     </div>
@@ -152,23 +153,19 @@
   }
   
   function uploadFile() {
-        alert("Running uploadFile() javascript");
-
         var bucket = document.forms["putFile"]["bucket"].value;
         var filename = document.forms["putFile"]["fileName"].value;
         var gBookName = document.forms["putFile"]["guestbookName"].value;
+        var uploadButton = document.getElementById("pic");
 
         if (bucket == null || bucket == "" || filename == null || filename == "") {
           alert("Both Bucket and FileName are required griowjhgwg!!!!");
           return false;
+        } else if (uploadButton.files.length != 1) {
+          alert("Select exactly one file");
         } else {
-          alert("other");
-          //var postData = document.forms["putFile"]["content"].value;
-          //document.getElementById("content").value = null;
-
-          var uploadButton = document.getElementById("pic");
           var theFile = uploadButton.files[0];
-          alert("file name is: " + theFile.name);
+          alert("About to upload image file. File name is: " + theFile.name);
           var postData = theFile;
 
           var request = new XMLHttpRequest();
@@ -176,7 +173,7 @@
           request.setRequestHeader("Content-Type", "image/gif");
           request.send(postData);
 
-          alert("done")
+          alert("Upload Complete")
         }
       }
   
