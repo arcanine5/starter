@@ -100,7 +100,7 @@ Sign in to make a post
 %>
 
 <h2> Upload an image </h2>
-<form action="/sign" method="post">
+<form action="/sign" method="post" name="putFile" id="putFile">
     <div><textarea name="content" rows="3" cols="60"></textarea></div>
     <div><input type="submit" value="Post Greeting"/></div>
     <input type="hidden" name="guestbookName" value="${fn:escapeXml(guestbookName)}"/>
@@ -154,6 +154,8 @@ Sign in to make a post
 
         var bucket = document.forms["putFile"]["bucket"].value;
         var filename = document.forms["putFile"]["fileName"].value;
+        var gBookName = document.forms["putFile"]["guestbookName"].value;
+
         if (bucket == null || bucket == "" || filename == null || filename == "") {
           alert("Both Bucket and FileName are required griowjhgwg!!!!");
           return false;
@@ -168,7 +170,7 @@ Sign in to make a post
           var postData = theFile;
 
           var request = new XMLHttpRequest();
-          request.open("POST", "/gcs/" + bucket + "/" + filename, false);
+          request.open("POST", "/gcs/" + bucket + "/" + filename + "?gBookName=" + gBookName, false);
           request.setRequestHeader("Content-Type", "image/gif");
           request.send(postData);
 

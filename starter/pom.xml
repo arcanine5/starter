@@ -41,6 +41,12 @@
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
+	<dependency>
+            <groupId>com.google.appengine.tools</groupId>
+            <artifactId>appengine-gcs-client</artifactId>
+            <version>0.6</version>
+            <scope>compile</scope>
+        </dependency>
 	<!-- [START Objectify_Dependencies] -->
         <dependency>
           <groupId>com.google.guava</groupId>

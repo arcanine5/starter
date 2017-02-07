@@ -15,6 +15,8 @@
         <gcloud.plugin.version>2.0.9.74.v20150814</gcloud.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+	<objectify.version>5.1.5</objectify.version>
+        <guava.version>18.0</guava.version>
     </properties>
 
     <prerequisites>
