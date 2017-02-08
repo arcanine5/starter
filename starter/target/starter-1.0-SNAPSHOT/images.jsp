@@ -83,7 +83,7 @@
             pageContext.setAttribute("greeting_user", author);
             // Construct image URL
 %>
-<p><b>${fn:escapeXml(greeting_user)}</b> wrote:</p>
+<p><b>${fn:escapeXml(greeting_user)}</b> posted (on:<%= greeting.date.toString() %> ):</p>
 <blockquote>${fn:escapeXml(greeting_content)}</blockquote>
 <img src="<%= greeting.imageFilename %>">
 <%
@@ -165,12 +165,13 @@
           alert("Select exactly one file");
         } else {
           var theFile = uploadButton.files[0];
-          alert("About to upload image file. File name is: " + theFile.name);
+          alert("About to upload image file. File name is: " + theFile.name + " type is: " +
+                                                            theFile.type);
           var postData = theFile;
 
           var request = new XMLHttpRequest();
           request.open("POST", "/gcs/" + bucket + "/" + filename + "?guestbookName=" + gBookName, false);
-          request.setRequestHeader("Content-Type", "image/gif");
+          request.setRequestHeader("Content-Type", theFile.type);
           request.send(postData);
 
           alert("Upload Complete")

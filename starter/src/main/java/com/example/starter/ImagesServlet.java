@@ -99,6 +99,7 @@ public class ImagesServlet extends HttpServlet {
     String content = req.getParameter("content");
     String bucketName = req.getParameter("bucket");
     String filename = req.getParameter("fileName");
+    String MIMEtype = req.getHeader("Content-Type");
     
     String reqURL = req.getRequestURL().toString();
     String reqURI = req.getRequestURI();
@@ -110,7 +111,7 @@ public class ImagesServlet extends HttpServlet {
      
     System.out.println("Recieved POST with bucket: " + bucketName + 
         " filename: " + filename + " guestbook: " + guestbookName + " content: "
-        + content);
+        + content + " filetype: " + MIMEtype);
     
     // Enumerate the parameters of this request
     Enumeration<String> paramNames = req.getParameterNames();
@@ -129,20 +130,7 @@ public class ImagesServlet extends HttpServlet {
       return;
     }
     
-    // Try parsing as multipart
-    /*
-    Collection<javax.servlet.http.Part> formData = req.getParts();
-    
-    if (formData.isEmpty()) {
-      System.out.println("No form parts.");
-    } else {
-      Iterator<Part> iter = formData.iterator();
-      while (iter.hasNext()) {
-        Part next = iter.next();
-        System.out.println("Content Part named: " + next.getName() + " of type");
-      }
-    }
-    */
+    parseRequestAsMultiPart(req);
     
     // Construct Post for Datastore
     if (user != null) {
@@ -158,7 +146,7 @@ public class ImagesServlet extends HttpServlet {
     ObjectifyService.ofy().save().entity(greeting).now();
     
     // Borrowed Code - Upload to cloud storage
-    GcsFileOptions instance = (new GcsFileOptions.Builder()).mimeType("image/gif")
+    GcsFileOptions instance = (new GcsFileOptions.Builder()).mimeType("MIMEtype")
         .build();
 
     GcsFilename fileName = getFileName(req);
@@ -209,6 +197,24 @@ public class ImagesServlet extends HttpServlet {
       input.close();
       output.close();
     }
+  }
+  
+  private void parseRequestAsMultiPart(HttpServletRequest req) 
+  {
+    // Try parsing as multipart
+    /*
+    Collection<javax.servlet.http.Part> formData = req.getParts();
+    
+    if (formData.isEmpty()) {
+      System.out.println("No form parts.");
+    } else {
+      Iterator<Part> iter = formData.iterator();
+      while (iter.hasNext()) {
+        Part next = iter.next();
+        System.out.println("Content Part named: " + next.getName() + " of type");
+      }
+    }
+    */
   }
   
   
