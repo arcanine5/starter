@@ -32,7 +32,7 @@ public class OfyHelper implements ServletContextListener {
   public void contextInitialized(ServletContextEvent event) {
     // This will be invoked as part of a warmup request, or the first user request if no warmup
     // request.
-    ObjectifyService.register(Guestbook.class);
+    ObjectifyService.register(Album.class);
     ObjectifyService.register(Post.class);
     System.out.println("DONE WITH OBJECTIFY REGISTER");
   }

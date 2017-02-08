@@ -64,7 +64,7 @@ import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Form Handling Servlet
- * Most of the action for this sample is in webapp/guestbook.jsp, which displays the
+ * Most of the action for this sample is in webapp/album.jsp, which displays the
  * {@link Post}'s. This servlet has one method
  * {@link #doPost(<#HttpServletRequest req#>, <#HttpServletResponse resp#>)} which takes the form
  * data and saves it.
@@ -95,7 +95,7 @@ public class ImagesServlet extends HttpServlet {
     User user = userService.getCurrentUser();  // Find out who the user is.
 
     // Fetch HTTP POST query string pairs for debug
-    String guestbookName = req.getParameter("guestbookName");
+    String albumName = req.getParameter("albumName");
     String content = req.getParameter("content");
     String bucketName = req.getParameter("bucket");
     String filename = req.getParameter("fileName");
@@ -110,7 +110,7 @@ public class ImagesServlet extends HttpServlet {
     
      
     System.out.println("Recieved POST with bucket: " + bucketName + 
-        " filename: " + filename + " guestbook: " + guestbookName + " content: "
+        " filename: " + filename + " album: " + albumName + " content: "
         + content + " filetype: " + MIMEtype);
     
     // Enumerate the parameters of this request
@@ -126,7 +126,7 @@ public class ImagesServlet extends HttpServlet {
     if (reqURI.equals("/sign")) {
       System.out.println("Skipping POST FROM FORM");
       System.out.println("About to redirect...");
-      resp.sendRedirect("/images.jsp?guestbookName=" + guestbookName);
+      resp.sendRedirect("/images.jsp?albumName=" + albumName);
       return;
     }
     
@@ -134,11 +134,11 @@ public class ImagesServlet extends HttpServlet {
     
     // Construct Post for Datastore
     if (user != null) {
-      greeting = new Post(guestbookName, content, user.getUserId(), user.getEmail(),
+      greeting = new Post(albumName, content, user.getUserId(), user.getEmail(),
           reqURI);
     } else {
       // TODO: Remove this. Do not allow post from users not logged in
-      greeting = new Post(guestbookName, content);
+      greeting = new Post(albumName, content);
     }
 
     // Use Objectify to save the greeting and now() is used to make the call synchronously as we
@@ -155,20 +155,27 @@ public class ImagesServlet extends HttpServlet {
     copy(req.getInputStream(), Channels.newOutputStream(outputChannel));
 
     System.out.println("About to redirect...");
-    resp.sendRedirect("/images.jsp?guestbookName=" + guestbookName);
+    resp.sendRedirect("/images.jsp?albumName=" + albumName);
   }
   
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    System.out.println("do get!!!!!\n\n");
+    System.out.println("\n\n do get!!!!!");
     
+    String reqURL = req.getRequestURL().toString();
+    String reqURI = req.getRequestURI();
+    String reqQstring = req.getQueryString();
+    
+    System.out.println("\n\nRequest URL: " + reqURL + "\n Request URI:" + 
+        reqURI + "\n Query String:" + reqQstring);
+    
+    // Serve image files from GCS
     GcsFilename fileName = getFileName(req);
-    if (true) {
-      BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-      BlobKey blobKey = blobstoreService.createGsBlobKey(
-          "/gs/" + fileName.getBucketName() + "/" + fileName.getObjectName());
-      blobstoreService.serve(blobKey, resp);
-    } 
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    BlobKey blobKey = blobstoreService.createGsBlobKey(
+        "/gs/" + fileName.getBucketName() + "/" + fileName.getObjectName());
+    blobstoreService.serve(blobKey, resp);
+     
   }
   
   

@@ -27,7 +27,7 @@ import java.lang.String;
 import java.util.Date;
 import java.util.List;
 
-import com.example.starter.Guestbook;
+import com.example.starter.Album;
 /**
  * An image posting.
  * 
@@ -43,7 +43,7 @@ import com.example.starter.Guestbook;
  **/
 @Entity
 public class Post {
-  @Parent Key<Guestbook> theBook;
+  @Parent Key<Album> theBook;
   @Id public Long id;
 
   public String author_email;
@@ -65,9 +65,9 @@ public class Post {
   public Post(String book, String content) {
     this();
     if( book != null ) {
-      theBook = Key.create(Guestbook.class, book);  // Creating the Ancestor key
+      theBook = Key.create(Album.class, book);  // Creating the Ancestor key
     } else {
-      theBook = Key.create(Guestbook.class, "default");
+      theBook = Key.create(Album.class, "default");
     }
     this.content = content;
   }

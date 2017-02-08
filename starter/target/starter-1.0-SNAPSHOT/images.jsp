@@ -6,7 +6,7 @@
 
 <%-- //[START imports]--%>
 <%@ page import="com.example.starter.Post" %>
-<%@ page import="com.example.starter.Guestbook" %>
+<%@ page import="com.example.starter.Album" %>
 <%@ page import="com.googlecode.objectify.Key" %>
 <%@ page import="com.googlecode.objectify.ObjectifyService" %>
 <%-- //[END imports]--%>
@@ -22,11 +22,11 @@
 <body>
 
 <%
-    String guestbookName = request.getParameter("guestbookName");
-    if (guestbookName == null) {
-        guestbookName = "default";
+    String albumName = request.getParameter("albumName");
+    if (albumName == null) {
+        albumName = "default";
     }
-    pageContext.setAttribute("guestbookName", guestbookName);
+    pageContext.setAttribute("albumName", albumName);
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     if (user != null) {
@@ -34,12 +34,12 @@
 %>
 
 <p>Hello, ${fn:escapeXml(user.nickname)}! (You can
-    <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>.)</p>
+    <a href="<%= userService.createLogoutURL(request.getRequestURI() + "?albumName=" + albumName ) %>">sign out</a>.)</p>
 <%
     } else {
 %>
 <p>Hello!
-    <a href="<%= userService.createLoginURL(request.getRequestURI()) %>">Sign in</a>
+    <a href="<%= userService.createLoginURL(request.getRequestURI() + "?albumName=" + albumName ) %>">Sign in</a>
     to include your name with greetings you post.</p>
 <%
     }
@@ -48,7 +48,7 @@
 <%-- //[START datastore]--%>
 <%
     // Create the correct Ancestor key
-      Key<Guestbook> theBook = Key.create(Guestbook.class, guestbookName);
+      Key<Album> theBook = Key.create(Album.class, albumName);
 
     // Run an ancestor query to ensure we see the most up-to-date
     // view of the Greetings belonging to the selected Guestbook.
@@ -61,11 +61,11 @@
 
     if (greetings.isEmpty()) {
 %>
-<p>Album '${fn:escapeXml(guestbookName)}' has no messages.</p>
+<p><h1> Album '${fn:escapeXml(albumName)}' has no messages. </h1></p>
 <%
     } else {
 %>
-<p>Messages in Album '${fn:escapeXml(guestbookName)}'.</p>
+<p><h1> Messages in Album '${fn:escapeXml(albumName)}'. </h1></p>
 <%
       // Display all Image posts
         for (Post greeting : greetings) {
@@ -106,7 +106,7 @@
 <form action="/sign" method="post" name="putFile" id="putFile">
     <div><textarea name="content" rows="3" cols="60"></textarea></div>
     <div><input type="hidden" value="Post Greeting"/></div>
-    <input type="hidden" name="guestbookName" value="${fn:escapeXml(guestbookName)}" required/>
+    <input type="hidden" name="albumName" value="${fn:escapeXml(albumName)}" required/>
     <div>
             Bucket: <input type="text" name="bucket" value="runexamples.appspot.com" required />
             File Name: <input type="text" name="fileName" required />
@@ -124,10 +124,10 @@
 
 <%-- //[END datastore]--%>
 <hr>
-<%-- // Switch Guestbook Form --%>
+<%-- // Switch Album Form --%>
 <form action="/images.jsp" method="get">
-    <div><input type="text" name="guestbookName" value="${fn:escapeXml(guestbookName)}"/></div>
-    <div><input type="submit" value="Switch Guestbook"/></div>
+    <div><input type="text" name="albumName" value="${fn:escapeXml(albumName)}"/></div>
+    <div><input type="submit" value="Switch Album"/></div>
     <div> <input type="button" value="Added button" onclick='uploadFile(this)'/>  </div>
 </form>
 
@@ -155,7 +155,7 @@
   function uploadFile() {
         var bucket = document.forms["putFile"]["bucket"].value;
         var filename = document.forms["putFile"]["fileName"].value;
-        var gBookName = document.forms["putFile"]["guestbookName"].value;
+        var gBookName = document.forms["putFile"]["albumName"].value;
         var uploadButton = document.getElementById("pic");
 
         if (bucket == null || bucket == "" || filename == null || filename == "") {
@@ -170,7 +170,7 @@
           var postData = theFile;
 
           var request = new XMLHttpRequest();
-          request.open("POST", "/gcs/" + bucket + "/" + filename + "?guestbookName=" + gBookName, false);
+          request.open("POST", "/gcs/" + bucket + "/" + filename + "?albumName=" + gBookName, false);
           request.setRequestHeader("Content-Type", theFile.type);
           request.send(postData);
 
