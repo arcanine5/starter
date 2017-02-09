@@ -9,6 +9,8 @@
 <%@ page import="com.example.starter.Album" %>
 <%@ page import="com.googlecode.objectify.Key" %>
 <%@ page import="com.googlecode.objectify.ObjectifyService" %>
+<%@ page import="com.example.starter.ImagesServlet" %>
+
 <%-- //[END imports]--%>
 
 <%@ page import="java.util.List" %>
@@ -85,7 +87,7 @@
 %>
 <p><b>${fn:escapeXml(greeting_user)}</b> posted (on:<%= greeting.date.toString() %> ):</p>
 <blockquote>${fn:escapeXml(greeting_content)}</blockquote>
-<img src="<%= greeting.imageFilename %>">
+<img src="<%= greeting.imageFilename + (ImagesServlet.APPEND_UUID_TO_FILENAME ? greeting.getUuidString() : "") %>">
 <%
         }
     }

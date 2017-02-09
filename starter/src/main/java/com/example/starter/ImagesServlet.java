@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.UUID;
 
 // Borrowed Imports
 import com.google.appengine.api.blobstore.BlobKey;
@@ -71,7 +72,7 @@ import com.googlecode.objectify.ObjectifyService;
  */
 public class ImagesServlet extends HttpServlet {
   
-  public static final boolean SERVE_USING_BLOBSTORE_API = true;
+  public static final boolean APPEND_UUID_TO_FILENAME = true;
 
   /**
    * This is where backoff parameters are configured. Here it is aggressively retrying with
@@ -89,7 +90,7 @@ public class ImagesServlet extends HttpServlet {
   // Process the http POST of the form
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    Post greeting;
+    Post newImagePost;
 
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();  // Find out who the user is.
@@ -123,33 +124,36 @@ public class ImagesServlet extends HttpServlet {
         System.out.println("\t \t value: " + value);
     }
     
+    // Ignore POSTS from HTML forms TODO: fix this
     if (reqURI.equals("/sign")) {
       System.out.println("Skipping POST FROM FORM");
       System.out.println("About to redirect...");
       resp.sendRedirect("/images.jsp?albumName=" + albumName);
       return;
     }
-    
-    parseRequestAsMultiPart(req);
-    
+        
     // Construct Post for Datastore
     if (user != null) {
-      greeting = new Post(albumName, content, user.getUserId(), user.getEmail(),
-          reqURI);
+      String newPostUuidString = UUID.randomUUID().toString();
+      newImagePost = new Post(albumName, content, user.getUserId(), user.getEmail(),
+          reqURI, newPostUuidString);
     } else {
       // TODO: Remove this. Do not allow post from users not logged in
-      greeting = new Post(albumName, content);
+      newImagePost = new Post(albumName, content);
     }
 
-    // Use Objectify to save the greeting and now() is used to make the call synchronously as we
+    // Use Objectify to save the newImagePost and now() is used to make the call synchronously as we
     // will immediately get a new page using redirect and we want the data to be present.
-    ObjectifyService.ofy().save().entity(greeting).now();
+    ObjectifyService.ofy().save().entity(newImagePost).now();
     
-    // Borrowed Code - Upload to cloud storage
-    GcsFileOptions instance = (new GcsFileOptions.Builder()).mimeType("MIMEtype")
+    // Upload to Cloud Storage
+    GcsFileOptions instance = (new GcsFileOptions.Builder()).mimeType(MIMEtype)
         .build();
 
     GcsFilename fileName = getFileName(req);
+    if (APPEND_UUID_TO_FILENAME) {
+      fileName = appendToObjectName(fileName, newImagePost.getUuidString());
+    }
     GcsOutputChannel outputChannel;
     outputChannel = gcsService.createOrReplace(fileName, instance);
     copy(req.getInputStream(), Channels.newOutputStream(outputChannel));
@@ -222,6 +226,10 @@ public class ImagesServlet extends HttpServlet {
       }
     }
     */
+  }
+  
+  public static GcsFilename appendToObjectName(GcsFilename oldFilename, String toAppend) {
+    return new GcsFilename(oldFilename.getBucketName(), oldFilename.getObjectName() + toAppend);
   }
   
   

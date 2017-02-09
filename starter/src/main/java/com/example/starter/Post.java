@@ -26,6 +26,7 @@ import com.googlecode.objectify.annotation.Parent;
 import java.lang.String;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import com.example.starter.Album;
 /**
@@ -51,6 +52,7 @@ public class Post {
   public String content;
   @Index public Date date;
   public String imageFilename;
+  private String uuidString; // Disambiguates posts with same image filenames and content
 
   /**
    * Simple constructor just sets the date
@@ -84,9 +86,15 @@ public class Post {
   /**
    * Constructor for image posts
    */
-  public Post(String book, String content, String id, String email, String imageFilename) {
+  public Post(String book, String content, String id, String email, String imageFilename, 
+      String uuid) {
     this(book, content, id, email);
     this.imageFilename = imageFilename;
+    this.uuidString =  uuid;
+  }
+  
+  public String  getUuidString() {
+    return this.uuidString;
   }
 
 }
