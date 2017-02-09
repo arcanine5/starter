@@ -7,6 +7,11 @@
       <servlet-class>com.example.starter.ImagesServlet</servlet-class>
     </servlet>
 
+    <servlet>
+      <servlet-name>create</servlet-name>
+      <servlet-class>com.example.starter.AlbumsServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
       <servlet-name>sign</servlet-name>
       <url-pattern>/sign</url-pattern>
@@ -14,11 +19,16 @@
 	
     <servlet-mapping>
       	<servlet-name>sign</servlet-name>
-      	<url-pattern>/</url-pattern>
+      	<url-pattern>/gcs/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      	<servlet-name>create</servlet-name>
+      	<url-pattern>/create*</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>
-        <welcome-file>images.jsp</welcome-file>
+        <welcome-file>albums.jsp</welcome-file>
     </welcome-file-list>
 <!-- [END standard_mappings] -->
 

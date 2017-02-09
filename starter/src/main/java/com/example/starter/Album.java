@@ -19,15 +19,56 @@ package com.example.starter;
 
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.annotation.Index;
+
+import com.google.appengine.api.users.User;
+
+import java.util.Date;
+import java.util.HashSet;
+
 
 /**
  * The @Entity tells Objectify about our entity.  We also register it in
  * OfyHelper.java -- very important.
  *
- * This is never actually created, but gives a hint to Objectify about our Ancestor key.
+ * Represents a photo album
  */
 @Entity
 public class Album {
-  @Id public String book;
+  @Id private String name;
+  @Index private Date date;
+  private User owner;
+  private HashSet<User> collaborators;
+  private boolean restricted; // Whether this album should limit access to the collaborators
+  
+  
+  private Album() {
+    this.date = new Date();
+    System.out.println("Album created at time: " + this.date);
+    this.collaborators = new HashSet<User>();
+  }
+  
+  public Album(String name, User owner) {
+    this();
+    this.name = name;
+    this.owner = owner;
+  }
+  
+  public String getName() {
+    return this.name;
+  }
+  
+  @Override
+  public String toString() {
+    StringBuilder buffer = new  StringBuilder();
+    buffer.append("Album: " + this.name + "\n");
+    buffer.append("\t Created: " + this.date + "\n");
+    buffer.append("\t Owner: " + this.owner + "\n");
+    buffer.append("\t Shared with: " + this.collaborators + "\n");
+    
+    return buffer.toString();
+  }
+  
 }
 //[END all]

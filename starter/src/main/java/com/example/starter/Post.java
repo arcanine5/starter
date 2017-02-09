@@ -44,7 +44,7 @@ import com.example.starter.Album;
  **/
 @Entity
 public class Post {
-  @Parent Key<Album> theBook;
+  @Parent Key<Album> album;
   @Id public Long id;
 
   public String author_email;
@@ -67,9 +67,9 @@ public class Post {
   public Post(String book, String content) {
     this();
     if( book != null ) {
-      theBook = Key.create(Album.class, book);  // Creating the Ancestor key
+      album = Key.create(Album.class, book);  // Creating the Ancestor key
     } else {
-      theBook = Key.create(Album.class, "default");
+      album = Key.create(Album.class, "default");
     }
     this.content = content;
   }
