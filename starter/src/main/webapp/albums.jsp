@@ -9,6 +9,8 @@
 <%@ page import="com.example.starter.Album" %>
 <%@ page import="com.googlecode.objectify.Key" %>
 <%@ page import="com.googlecode.objectify.ObjectifyService" %>
+<%@ page import="com.googlecode.objectify.cmd.SimpleQuery" %>
+
 <%@ page import="com.example.starter.ImagesServlet" %>
 
 <%-- //[END imports]--%>
@@ -67,13 +69,35 @@
 
 <hr>
 <br>
+</div>
 
 <%-- Display Albums by name --%>
 Displaying Album names here
 <% 
     for (Album curr : albums) {
+      // Use any contained image as a thumbnail for this album
+      SimpleQuery<Post> allInAlb = ObjectifyService.ofy()
+          .load()
+          .type(Post.class) // We want only Greetings
+          .ancestor(curr);    // Anyone in this album
+      Post postFromAlb = allInAlb.first().now();
+
+      String thumbnailSrc;
+      if (postFromAlb == null) {
+        thumbnailSrc = "/grey.png";
+      } else {
+        thumbnailSrc = postFromAlb.imageFilename + (ImagesServlet.APPEND_UUID_TO_FILENAME ? postFromAlb.getUuidString() : "");
+      }
+
     %>
     <p> <%= curr.toString() %> </p>
+    <a href = "/images.jsp?albumName=<%= curr.getName() %>">
+      <img src="<%= thumbnailSrc %>" alt="<%= curr.getName() %>" width = 250>
+    </a>
+    <p style="font-size:12px"> <b> <%= curr.getName() %> </b> </p>
+    <p style="font-size:9px; color:darkgray"> <i> <%= allInAlb.count() %> Items </i> </p>
+    
+    <br>
     <%
 
     }
@@ -94,7 +118,7 @@ Displaying Album names here
 
 <%-- //[END datastore]--%>
 <hr>
-</div>
+
 <%-- // Switch Album Form --%>
 <form action="/images.jsp" method="get">
     <div><input type="text" name="albumName" value="${fn:escapeXml(albumName)}"/></div>
@@ -103,14 +127,17 @@ Displaying Album names here
 </form>
 
 <% // Create an Album form --%>
+<div style="text-align:center;">
+
 <p> <b> Create an Album </b> <p>
 <form action="/create" method="post" name="createAlbum" id="createAlbum">
           <div>
             New Album Name: <input type="text" id="newAlbumName"   name="newAlbumName" required />
-            <br />
+            <br>
             <input type="submit"  value="Create Album" />
           </div>
 </form>
+</div>
 
 
 <script>
