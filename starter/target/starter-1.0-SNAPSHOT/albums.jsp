@@ -17,6 +17,7 @@
 
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<% final int MAX_ROW_LEN = 4; %>
 
 <html>
 <head>
@@ -47,7 +48,7 @@
 %>
 <p>Hello!
     <a href="<%= userService.createLoginURL(request.getRequestURI() + "?albumName=" + albumName ) %>">Sign in</a>
-    to include your name with greetings you post.</p>
+    to create an album or view a private album.</p>
 <%
     }
 %>
@@ -72,9 +73,19 @@
 </div>
 
 <%-- Display Albums by name --%>
-Displaying Album names here
+<p> Displaying Album names here </p>
+<table style="width:100%">
+  <tr>
 <% 
-    for (Album curr : albums) {
+    for (int idx = 0; idx < albums.size(); idx++) {
+      Album curr = albums.get(idx);
+    
+      // Insert row breaks every few albums
+      if ((idx % MAX_ROW_LEN) == 0) {
+        %> </tr> <tr>  <%
+      }
+
+
       // Use any contained image as a thumbnail for this album
       SimpleQuery<Post> allInAlb = ObjectifyService.ofy()
           .load()
@@ -90,41 +101,34 @@ Displaying Album names here
       }
 
     %>
-    <p> <%= curr.toString() %> </p>
-    <a href = "/images.jsp?albumName=<%= curr.getName() %>">
-      <img src="<%= thumbnailSrc %>" alt="<%= curr.getName() %>" width = 250>
-    </a>
-    <p style="font-size:12px"> <b> <%= curr.getName() %> </b> </p>
-    <p style="font-size:9px; color:darkgray"> <i> <%= allInAlb.count() %> Items </i> </p>
-    
+    <td>
+      <a href = "/images.jsp?albumName=<%= curr.getName() %>">
+        <img src="<%= thumbnailSrc %>" alt="<%= curr.getName() %>" width = 250>
+      </a>
+      <p style="font-size:13px"> <b> <%= curr.getName() %> </b> </p>
+      <p style="font-size:10px; color:darkgray"> <i> <%= allInAlb.count() %> Items </i> </p>
+    </td>
     <br>
     <%
 
     }
+%>
+  </tr>
+</table>
 
-
-
+<%
     if (user == null) {
 %>
-<p> <i> Sign in to make a post </i> </p>
+<p> <i> Sign in to create an album. </i> </p>
 <%
     } else {
 %>
+   <hr>
 
-
-<%
-    }
-%>
 
 <%-- //[END datastore]--%>
-<hr>
 
-<%-- // Switch Album Form --%>
-<form action="/images.jsp" method="get">
-    <div><input type="text" name="albumName" value="${fn:escapeXml(albumName)}"/></div>
-    <div><input type="submit" value="Switch Album"/></div>
-    <div> <input type="button" value="Added button" onclick='uploadFile(this)'/>  </div>
-</form>
+
 
 <% // Create an Album form --%>
 <div style="text-align:center;">
@@ -132,12 +136,15 @@ Displaying Album names here
 <p> <b> Create an Album </b> <p>
 <form action="/create" method="post" name="createAlbum" id="createAlbum">
           <div>
-            New Album Name: <input type="text" id="newAlbumName"   name="newAlbumName" required />
+            New Album Name: <input type="text" id="newAlbumName"   name="newAlbumName" placeholder="Vacation Pictures" required />
             <br>
             <input type="submit"  value="Create Album" />
           </div>
 </form>
 </div>
+<%
+    }
+%>
 
 
 <script>

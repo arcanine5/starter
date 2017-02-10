@@ -47,6 +47,12 @@
     }
 %>
 
+<input type="button" onclick="location.href='/albums.jsp';" value="Back">
+<input type="button" onclick="location.href='http://google.com';" value="Share">
+
+
+
+
 <%-- //[START datastore]--%>
 <%
     // Create the correct Ancestor key
@@ -67,7 +73,8 @@
 <%
     } else {
 %>
-<p><h1> Messages in Album '${fn:escapeXml(albumName)}'. </h1></p>
+<p><h1> Album '${fn:escapeXml(albumName)}'. </h1></p>
+
 <%
       // Display all Image posts
         for (Post greeting : greetings) {
@@ -106,7 +113,7 @@
 
 <h2> Upload an image </h2>
 <form action="/sign" method="post" name="putFile" id="putFile">
-    <div><textarea name="content" rows="3" cols="60"></textarea></div>
+    <div><textarea style="display:none" name="content" rows="3" cols="60"></textarea></div>
     <div><input type="hidden" value="Post Greeting"/></div>
     <input type="hidden" name="albumName" value="${fn:escapeXml(albumName)}" required/>
     <div>
@@ -133,18 +140,6 @@
     <div> <input type="button" value="Added button" onclick='uploadFile(this)'/>  </div>
 </form>
 
-<% // Working upload file form --%>
-<form action="/index.html" enctype="multipart/form-data" method="get" name="putFile" id="putFile">
-          <div>
-            Bucket: <input type="text" name="bucket" />
-            File Name: <input type="text" name="fileName" />
-            <br /> File Contents: <br />
-            <!--<textarea name="content" id="content" rows="3" cols="60"></textarea> -->
-            <input type="file" name="pic" id="pic" accept="image/*">
-            <br />
-            <input type="submit" onclick='uploadFile(this)' value="Upload Content" />
-          </div>
-</form>
 
 
 <script>
@@ -176,7 +171,6 @@
           request.setRequestHeader("Content-Type", theFile.type);
           request.send(postData);
 
-          alert("Upload Complete")
         }
       }
   
