@@ -45,35 +45,67 @@
     to include your name with greetings you post.</p>
 <%
     }
-%>
-
-<input type="button" onclick="location.href='/albums.jsp';" value="Back">
-<input type="button" onclick="location.href='http://google.com';" value="Share">
-
-
-
-
-<%-- //[START datastore]--%>
-<%
-    // Create the correct Ancestor key
-      Key<Album> theBook = Key.create(Album.class, albumName);
+     // Create the correct Ancestor key and fetch album metadata
+      Key<Album> albumKey = Key.create(Album.class, albumName);
+      Album album =  ObjectifyService.ofy()
+          .load()
+          .key(albumKey)
+          .now();
+      if (album == null) {
+        throw new IllegalArgumentException("Album " + albumName + " does not exist.");
+      }
 
     // Run an ancestor query to ensure we see the most up-to-date
     // view of the Greetings belonging to the selected Guestbook.
       List<Post> greetings = ObjectifyService.ofy()
           .load()
           .type(Post.class) // We want only Greetings
-          .ancestor(theBook)    // Anyone in this book
+          .ancestor(albumKey)    // Anyone in this book
           .order("date")       // Most recent first - date is indexed.
           .list();
 
-    if (greetings.isEmpty()) {
+%>
+<table style="width:100%" > <tr>
+  <td>
+    <input type="button" onclick="location.href='/albums.jsp';" value="Back">
+  </td>
+  <td>
+    <!-- Album Sharing form -->
+    <p> <h3> Album Sharing   </h3>  </p>
+    <ul>
+      <li> <b> Owner: </b> <%= album.getOwner().getNickname() %> </li>
+      <li> <b> Shared with: </b>   </li> 
+      <select size="3" disabled>
+        <% for (User currUser : album.getCollaborators()) { %>
+          <option value="collabNickname"> <%= currUser.getNickname() %> </option>
+        <%}%>
+      </select>
+    </ul>
+    <form  action="/share" method="post" name="addCollab" id="addCollab"> 
+        Email Address: <input type="email" name="collabName" id="collabName"
+                  placeholder="runexamples.appspot.com" required /> <br>
+        Auth Domain:  <input type="text" name="collabDomain" id="collabDomain"
+                  placeholder="gmail.com" required /> <br>
+                  <input type="hidden" name="albumName" id="albumName" value="<%= albumName %>" >
+
+        <input type="submit"  value="Share">
+        
+    </form>
+  </td>
+</tr> </table>
+
+
+
+
+<%
+       if (greetings.isEmpty()) {
 %>
 <p><h1> Album '${fn:escapeXml(albumName)}' has no messages. </h1></p>
 <%
     } else {
 %>
 <p><h1> Album '${fn:escapeXml(albumName)}'. </h1></p>
+<p> <%= album.toString() %> </p>
 
 <%
       // Display all Image posts

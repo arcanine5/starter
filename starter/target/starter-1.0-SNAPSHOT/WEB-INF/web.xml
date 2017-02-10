@@ -12,6 +12,11 @@
       <servlet-class>com.example.starter.AlbumsServlet</servlet-class>
     </servlet>
 
+    <servlet>
+      <servlet-name>share</servlet-name>
+      <servlet-class>com.example.starter.SharingServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
       <servlet-name>sign</servlet-name>
       <url-pattern>/sign</url-pattern>
@@ -25,6 +30,11 @@
     <servlet-mapping>
       	<servlet-name>create</servlet-name>
       	<url-pattern>/create</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      	<servlet-name>share</servlet-name>
+      	<url-pattern>/share</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

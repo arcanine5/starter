@@ -70,5 +70,17 @@ public class Album {
     return buffer.toString();
   }
   
+  public User getOwner() {
+    return this.owner;
+  }
+  
+  public boolean addCollaborator(com.google.appengine.api.users.User user) {
+    System.out.println("Collab count: " + this.collaborators.size());
+    return this.collaborators.add(user);
+  }
+  
+  public HashSet<User> getCollaborators() {
+    return collaborators;
+  }
 }
 //[END all]

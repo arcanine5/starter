@@ -1,4 +1,5 @@
 com/example/starter/AlbumsServlet.class
+com/example/starter/SharingServlet.class
 com/example/starter/ImagesServlet.class
 com/example/starter/Album.class
 com/example/starter/Post.class
