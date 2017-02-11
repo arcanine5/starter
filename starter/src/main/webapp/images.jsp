@@ -10,6 +10,8 @@
 <%@ page import="com.googlecode.objectify.Key" %>
 <%@ page import="com.googlecode.objectify.ObjectifyService" %>
 <%@ page import="com.example.starter.ImagesServlet" %>
+<%@ page import="com.example.starter.MyUser" %>
+
 
 <%-- //[END imports]--%>
 
@@ -51,8 +53,13 @@
           .load()
           .key(albumKey)
           .now();
+     
+      // Check album existensce and permissions
       if (album == null) {
         throw new IllegalArgumentException("Album " + albumName + " does not exist.");
+      } else if ((album.isRestricted() && (user == null || (!album.getCollaborators().contains(new MyUser(user))) ))) {
+         throw new IllegalArgumentException("You do not have permission to view this album. Restricted: " 
+         + album.isRestricted() + " you: " + user);
       }
 
     // Run an ancestor query to ensure we see the most up-to-date
@@ -76,7 +83,7 @@
       <li> <b> Owner: </b> <%= album.getOwner().getNickname() %> </li>
       <li> <b> Shared with: </b>   </li> 
       <select size="3" disabled>
-        <% for (User currUser : album.getCollaborators()) { %>
+        <% for (MyUser currUser : album.getCollaborators()) { %>
           <option value="collabNickname"> <%= currUser.getNickname() %> </option>
         <%}%>
       </select>

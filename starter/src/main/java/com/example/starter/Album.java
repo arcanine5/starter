@@ -38,21 +38,23 @@ import java.util.HashSet;
 public class Album {
   @Id private String name;
   @Index private Date date;
-  private User owner;
-  private HashSet<User> collaborators;
+  private MyUser owner;
+  private HashSet<MyUser> collaborators;
   private boolean restricted; // Whether this album should limit access to the collaborators
   
   
   private Album() {
     this.date = new Date();
     System.out.println("Album created at time: " + this.date);
-    this.collaborators = new HashSet<User>();
+    this.collaborators = new HashSet<MyUser>();
   }
   
-  public Album(String name, User owner) {
+  public Album(String name, MyUser owner, boolean privacy) {
     this();
     this.name = name;
     this.owner = owner;
+    this.collaborators.add(owner);
+    this.restricted = privacy;
   }
   
   public String getName() {
@@ -65,22 +67,30 @@ public class Album {
     buffer.append("Album: " + this.name + "\n");
     buffer.append("\t Created: " + this.date + "\n");
     buffer.append("\t Owner: " + this.owner + "\n");
-    buffer.append("\t Shared with: " + this.collaborators + "\n");
+    buffer.append("\t Shared with: " + this.collaborators + "Restricted "+ restricted + "\n");
     
     return buffer.toString();
   }
   
-  public User getOwner() {
+  public MyUser getOwner() {
     return this.owner;
   }
   
-  public boolean addCollaborator(com.google.appengine.api.users.User user) {
+  public boolean addCollaborator(MyUser user) {
     System.out.println("Collab count: " + this.collaborators.size());
     return this.collaborators.add(user);
   }
   
-  public HashSet<User> getCollaborators() {
+  public HashSet<MyUser> getCollaborators() {
     return collaborators;
+  }
+  
+  public boolean isRestricted() {
+    return this.restricted;
+  }
+  
+  public boolean isViewer(MyUser user) {
+    return false;
   }
 }
 //[END all]

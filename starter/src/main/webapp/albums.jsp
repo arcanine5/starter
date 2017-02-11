@@ -138,7 +138,10 @@
           <div>
             New Album Name: <input type="text" id="newAlbumName"   name="newAlbumName" placeholder="Vacation Pictures" required />
             <br>
-            <input type="submit"  value="Create Album" />
+            
+            <input type="checkbox" value="Create Album" name="privacy" id="privacy" checked> Make Private (only collaborators can view)
+            <br>
+            <input type="submit"  value="Create Album" >
           </div>
 </form>
 </div>

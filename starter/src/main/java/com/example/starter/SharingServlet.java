@@ -87,8 +87,13 @@ public class SharingServlet extends HttpServlet {
     String authDomain = req.getParameter("collabDomain");
     String requestedAlbumName = req.getParameter("albumName");
     
+    
     User newCollab = new User(collabEmailAddr, authDomain);
     assert (newCollab != null);
+    assert(false);
+    
+    // Check format of new Collaborator
+    System.out.println("User creating album is: " + SharingServlet.userToString(newCollab));
     
     // Create if name not taken by existing Album
     Album albumToShare = ObjectifyService.ofy()
@@ -103,14 +108,14 @@ public class SharingServlet extends HttpServlet {
     } else if (requestingUser == null) {
       resp.sendError(resp.SC_UNAUTHORIZED, "log in to share an album.");
       return;
-    } else if (!requestingUser.equals(albumToShare.getOwner())) {
+    } else if (!(  (new MyUser(requestingUser)).equals(albumToShare.getOwner()  ))) {
       resp.sendError(resp.SC_UNAUTHORIZED, "You are not the owner. Consult: " + 
           albumToShare.getOwner().getEmail() + " for assistance");
       return;
     }
     
     // Add collaborator TODO: Avoid race conditions. maybe with transactions
-    albumToShare.addCollaborator(newCollab);
+    albumToShare.addCollaborator(new MyUser(newCollab));
     ObjectifyService.ofy().save().entity(albumToShare).now();
     System.out.println("About to redirect...");
     resp.sendRedirect("/images.jsp?albumName=" + requestedAlbumName);
@@ -149,6 +154,16 @@ public class SharingServlet extends HttpServlet {
       input.close();
       output.close();
     }
+  }
+  
+  public static String userToString(User us) {
+    StringBuilder buffer = new  StringBuilder();
+    buffer.append("\t Email: " + us.getEmail() + "\n");
+    buffer.append("\t ID: " + us.getUserId() + "\n");
+    buffer.append("\t AuthDomain: " + us.getAuthDomain() + "\n");
+    buffer.append("\t Fed ID: " + us.getFederatedIdentity() + "\n");
+    
+    return buffer.toString();
   }
   
 }

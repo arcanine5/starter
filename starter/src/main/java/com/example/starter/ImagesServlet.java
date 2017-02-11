@@ -173,6 +173,8 @@ public class ImagesServlet extends HttpServlet {
     System.out.println("\n\nRequest URL: " + reqURL + "\n Request URI:" + 
         reqURI + "\n Query String:" + reqQstring);
     
+    
+    
     // Serve image files from GCS
     GcsFilename fileName = getFileName(req);
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();

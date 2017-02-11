@@ -97,6 +97,8 @@ public class AlbumsServlet extends HttpServlet {
     User user = userService.getCurrentUser();  // Find out who the user is.
 
     String requestedAlbumName = req.getParameter("newAlbumName");
+    boolean isPrivate = req.getParameter("privacy") != null;
+    System.out.println("Privacy setting " + isPrivate);
     
     
     // Handle req format errors
@@ -108,6 +110,9 @@ public class AlbumsServlet extends HttpServlet {
       return;
     }
     
+    // Check format of requesting user
+    System.out.println("User creating album is: " + SharingServlet.userToString(user));
+    
     // Create if name not taken by existing Album
     Album existing = ObjectifyService.ofy()
         .load()
@@ -116,7 +121,7 @@ public class AlbumsServlet extends HttpServlet {
     
     if (existing == null) {
       System.out.println("Album with name " + requestedAlbumName + " is NEW. Creating...");
-      Album newAlbum = new Album(requestedAlbumName, user);
+      Album newAlbum = new Album(requestedAlbumName, new MyUser(user), isPrivate);
       ObjectifyService.ofy().save().entity(newAlbum).now();
       
       resp.setStatus(resp.SC_CREATED);
