@@ -57,7 +57,7 @@
       // Check album existensce and permissions
       if (album == null) {
         throw new IllegalArgumentException("Album " + albumName + " does not exist.");
-      } else if ((album.isRestricted() && (user == null || (!album.getCollaborators().contains(new MyUser(user))) ))) {
+      } else if ((album.isRestricted() && (user == null || (!album.isViewer(new MyUser(user))) ))) {
          throw new IllegalArgumentException("You do not have permission to view this album. Restricted: " 
          + album.isRestricted() + " you: " + user);
       }

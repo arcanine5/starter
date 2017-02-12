@@ -82,7 +82,8 @@ public class Album {
   }
   
   public HashSet<MyUser> getCollaborators() {
-    return collaborators;
+    HashSet<MyUser> copy = new HashSet<>(this.collaborators);
+    return copy;
   }
   
   public boolean isRestricted() {
@@ -90,7 +91,7 @@ public class Album {
   }
   
   public boolean isViewer(MyUser user) {
-    return false;
+    return this.collaborators.contains(user);
   }
 }
 //[END all]

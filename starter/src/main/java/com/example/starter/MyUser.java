@@ -37,6 +37,9 @@ public class MyUser implements java.lang.Comparable<MyUser>  {
   }
   
   public MyUser(User us) {
+    if (us == null) {
+      throw new IllegalArgumentException("User instance may not be null");
+    }
     this.user = us;
   }
   

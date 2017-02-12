@@ -60,6 +60,7 @@ import java.nio.channels.Channels;
 
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Work;
 
 
 
@@ -88,16 +89,16 @@ public class AlbumsServlet extends HttpServlet {
   /**Used below to determine the size of chucks to read in. Should be > 1kb and < 10MB */
   private static final int BUFFER_SIZE = 2 * 1024 * 1024;
 
-  // Process the http POST of the form
+  // Handle Album Creation and deletion
   @Override
-  public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+  public void doPost(HttpServletRequest req, final HttpServletResponse resp) throws IOException {
     System.out.println("\n\n Albums Servlet POST");
     
     UserService userService = UserServiceFactory.getUserService();
-    User user = userService.getCurrentUser();  // Find out who the user is.
+    final User user = userService.getCurrentUser();  // Find out who the user is.
 
-    String requestedAlbumName = req.getParameter("newAlbumName");
-    boolean isPrivate = req.getParameter("privacy") != null;
+    final String requestedAlbumName = req.getParameter("newAlbumName");
+    final boolean isPrivate = req.getParameter("privacy") != null;
     System.out.println("Privacy setting " + isPrivate);
     
     
@@ -114,24 +115,37 @@ public class AlbumsServlet extends HttpServlet {
     System.out.println("User creating album is: " + SharingServlet.userToString(user));
     
     // Create if name not taken by existing Album
-    Album existing = ObjectifyService.ofy()
-        .load()
-        .key(Key.create(Album.class, requestedAlbumName))
-        .now();
-    
-    if (existing == null) {
-      System.out.println("Album with name " + requestedAlbumName + " is NEW. Creating...");
-      Album newAlbum = new Album(requestedAlbumName, new MyUser(user), isPrivate);
-      ObjectifyService.ofy().save().entity(newAlbum).now();
-      
-      resp.setStatus(resp.SC_CREATED);
-      System.out.println("About to redirect...");
-      resp.sendRedirect("/albums.jsp");
-    } else {
-      System.out.println("Album with name " + requestedAlbumName + " already exists");
-      resp.sendError(resp.SC_CONFLICT, "Album with name: " + requestedAlbumName + " already exists.");
-    }
-    
+    Object trash = ObjectifyService.ofy().transact( new Work() {
+      public Object run() {
+        Album existing = ObjectifyService.ofy()
+            .load()
+            .key(Key.create(Album.class, requestedAlbumName))
+            .now();
+        
+        if (existing == null) {
+          System.out.println("Album with name " + requestedAlbumName + " is NEW. Creating...");
+          Album newAlbum = new Album(requestedAlbumName, new MyUser(user), isPrivate);
+          ObjectifyService.ofy().save().entity(newAlbum).now();
+          
+          resp.setStatus(resp.SC_CREATED);
+          System.out.println("About to redirect...");
+          try {
+            resp.sendRedirect("/albums.jsp");
+          } catch (IOException e) {
+            System.out.println("Redirect failed.");
+          }
+        } else {
+          System.out.println("Album with name " + requestedAlbumName + " already exists");
+          try {
+            resp.sendError(resp.SC_CONFLICT, "Album with name: " + requestedAlbumName + " already exists.");
+          } catch (IOException e) {
+            System.out.println("Redirect failed.");
+          }
+        }
+        
+        return "";
+      }
+    });
     
   }
   
