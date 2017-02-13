@@ -86,6 +86,8 @@ public class SharingServlet extends HttpServlet {
     String collabEmailAddr = req.getParameter("collabName");
     String authDomain = req.getParameter("collabDomain");
     String requestedAlbumName = req.getParameter("albumName");
+    final boolean grantEditAccess = req.getParameter("grantEditAccess") != null;
+    String operation = req.getParameter("operation");
     
     
     User newCollab = new User(collabEmailAddr, authDomain);
@@ -114,8 +116,23 @@ public class SharingServlet extends HttpServlet {
       return;
     }
     
-    // Add collaborator TODO: Avoid race conditions. maybe with transactions
-    albumToShare.addEditor(new MyUser(newCollab));
+    // wipe out existing permissions for this user
+    albumToShare.removeEditor(new MyUser(newCollab));
+    albumToShare.removeViewer(new MyUser(newCollab));
+    
+    if (operation.equals("add")) {
+      System.out.println("Adding collaborator");
+      // Add collaborator TODO: Avoid race conditions. maybe with transactions
+      if (grantEditAccess) {
+        albumToShare.addEditor(new MyUser(newCollab));
+      } else {
+        albumToShare.addViewer(new MyUser(newCollab));
+      }
+    } else {
+      System.out.println("Removing collaborator");
+    }
+    
+    
     ObjectifyService.ofy().save().entity(albumToShare).now();
     System.out.println("About to redirect...");
     resp.sendRedirect("/images.jsp?albumName=" + requestedAlbumName);

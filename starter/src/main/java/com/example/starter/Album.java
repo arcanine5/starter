@@ -40,6 +40,7 @@ public class Album {
   @Index private Date date;
   private MyUser owner;
   private HashSet<MyUser> editors;
+  private HashSet<MyUser> viewers;
   private boolean restricted; // Whether this album should limit access to the editors
   
   
@@ -47,6 +48,7 @@ public class Album {
     this.date = new Date();
     System.out.println("Album created at time: " + this.date);
     this.editors = new HashSet<MyUser>();
+    this.viewers = new HashSet<MyUser>();
   }
   
   public Album(String name, MyUser owner, boolean privacy) {
@@ -93,5 +95,35 @@ public class Album {
   public boolean isEditor(MyUser user) {
     return this.editors.contains(user);
   }
+  
+  public boolean removeEditor(MyUser user) {
+    System.out.println("Collab count: " + this.editors.size());
+    return this.editors.remove(user);
+  }
+  
+  // ------------------------------------------------------------------------------
+  
+  public boolean addViewer(MyUser user) {
+    System.out.println("Collab count: " + this.viewers.size());
+    return this.viewers.add(user);
+  }
+  
+  public HashSet<MyUser> getViewers() {
+    HashSet<MyUser> copy = new HashSet<>(this.viewers);
+    copy.addAll(this.editors);
+    return copy;
+  }
+  
+  
+  public boolean isViewer(MyUser user) {
+    return this.editors.contains(user) || this.viewers.contains(user);
+  }
+  
+  public boolean removeViewer(MyUser user) {
+    System.out.println("Collab count: " + this.viewers.size());
+    return this.viewers.remove(user);
+  }
+  
+  
 }
 //[END all]

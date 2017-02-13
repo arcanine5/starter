@@ -57,7 +57,7 @@
       // Check album existensce and permission to view
       if (album == null) {
         throw new IllegalArgumentException("Album " + albumName + " does not exist.");
-      } else if ((album.isRestricted() && (user == null || (!album.isEditor(new MyUser(user))) ))) {
+      } else if ((album.isRestricted() && (user == null || (!album.isViewer(new MyUser(user))) ))) {
          throw new IllegalArgumentException("You do not have permission to view this album. Restricted: " 
          + album.isRestricted() + " you: " + user);
       }
@@ -83,12 +83,26 @@
     <p> <h3> Album Sharing   </h3>  </p>
     <ul>
       <li> <b> Owner: </b> <%= album.getOwner().getNickname() %> </li>
-      <li> <b> Shared with: </b>   </li> 
-      <select size="3" disabled>
-        <% for (MyUser currUser : album.getEditors()) { %>
-          <option value="collabNickname"> <%= currUser.getNickname() %> </option>
-        <%}%>
-      </select>
+      <li> <b> Shared with: </b>   </li>
+      <form   action="/share" method="post" name="removeCollab" id="removeCollab"> 
+        <fieldset <% if(!userCanEdit) {%> disabled <%} %> >
+        <select name="collabName" size="3" form="removeCollab" required>
+          <% for (MyUser currUser : album.getViewers()) { 
+            final boolean currCanEdit = (album.isEditor(currUser)) ;
+
+            final String permissionDescript = (currCanEdit ? "(can edit)" : "(can view)");
+          %>
+          <option value="<%= currUser.getEmail()  %>" name="collabName" id="collabName"> 
+                <%= currUser.getNickname() +" "+ permissionDescript %> </option>
+          <%}%>
+        </select>
+        <input type="hidden" name="operation" id="operation" value="remove" >
+        <input type="hidden" name="collabDomain" id="collabDomain" value="gmail.com" >
+        <input type="hidden" name="albumName" id="albumName" value="<%= albumName %>" >
+
+        <input type="submit" value="Revoke Access" >
+        </fieldset>
+      </form>
     </ul>
     <p> <b> Add Collaborator </b> <p>
     <form  action="/share" method="post" name="addCollab" id="addCollab">
@@ -99,6 +113,9 @@
         Auth Domain:  <input type="text" name="collabDomain" id="collabDomain"
                   placeholder="gmail.com" required /> <br>
                   <input type="hidden" name="albumName" id="albumName" value="<%= albumName %>" >
+                  <input type="checkbox" name="grantEditAccess" id="grantEditAccess"> Can Edit <br>
+                  <input type="hidden" name="operation" id="operation" value="add" >
+
 
         <input type="submit"  value="Share">
       </fieldset>
@@ -148,9 +165,9 @@
 
 <%-- // Post Greeting / Upload file form --%>
 <%  
-    if (user == null) {
+    if (!userCanEdit) {
 %>
-<p> <i> Sign in to make a post </i> </p>
+<p> <i> Sign in (and have edit rights) to make a post </i> </p>
 <%
     } else {
 %>
