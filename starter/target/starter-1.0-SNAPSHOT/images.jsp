@@ -44,7 +44,7 @@
 %>
 <p>Hello!
     <a href="<%= userService.createLoginURL(request.getRequestURI() + "?albumName=" + albumName ) %>">Sign in</a>
-    to include your name with greetings you post.</p>
+    to include your name with posts you post.</p>
 <%
     }
      // Create the correct Ancestor key and fetch album metadata
@@ -54,17 +54,19 @@
           .key(albumKey)
           .now();
      
-      // Check album existensce and permissions
+      // Check album existensce and permission to view
       if (album == null) {
         throw new IllegalArgumentException("Album " + albumName + " does not exist.");
-      } else if ((album.isRestricted() && (user == null || (!album.isViewer(new MyUser(user))) ))) {
+      } else if ((album.isRestricted() && (user == null || (!album.isEditor(new MyUser(user))) ))) {
          throw new IllegalArgumentException("You do not have permission to view this album. Restricted: " 
          + album.isRestricted() + " you: " + user);
       }
 
+      final boolean userCanEdit = (user != null && (album.isEditor(new MyUser(user))) );
+
     // Run an ancestor query to ensure we see the most up-to-date
     // view of the Greetings belonging to the selected Guestbook.
-      List<Post> greetings = ObjectifyService.ofy()
+      List<Post> posts = ObjectifyService.ofy()
           .load()
           .type(Post.class) // We want only Greetings
           .ancestor(albumKey)    // Anyone in this book
@@ -83,12 +85,15 @@
       <li> <b> Owner: </b> <%= album.getOwner().getNickname() %> </li>
       <li> <b> Shared with: </b>   </li> 
       <select size="3" disabled>
-        <% for (MyUser currUser : album.getCollaborators()) { %>
+        <% for (MyUser currUser : album.getEditors()) { %>
           <option value="collabNickname"> <%= currUser.getNickname() %> </option>
         <%}%>
       </select>
     </ul>
-    <form  action="/share" method="post" name="addCollab" id="addCollab"> 
+    <p> <b> Add Collaborator </b> <p>
+    <form  action="/share" method="post" name="addCollab" id="addCollab">
+      <fieldset <% if(!userCanEdit) {%> disabled <%} %> >
+        <legend> Add Collaborator: </legend>
         Email Address: <input type="email" name="collabName" id="collabName"
                   placeholder="runexamples.appspot.com" required /> <br>
         Auth Domain:  <input type="text" name="collabDomain" id="collabDomain"
@@ -96,7 +101,7 @@
                   <input type="hidden" name="albumName" id="albumName" value="<%= albumName %>" >
 
         <input type="submit"  value="Share">
-        
+      </fieldset>
     </form>
   </td>
 </tr> </table>
@@ -105,7 +110,7 @@
 
 
 <%
-       if (greetings.isEmpty()) {
+       if (posts.isEmpty()) {
 %>
 <p><h1> Album '${fn:escapeXml(albumName)}' has no messages. </h1></p>
 <%
@@ -116,7 +121,7 @@
 
 <%
       // Display all Image posts
-        for (Post greeting : greetings) {
+        for (Post greeting : posts) {
             pageContext.setAttribute("greeting_content", greeting.content);
             String author;
             if (greeting.author_email == null) {

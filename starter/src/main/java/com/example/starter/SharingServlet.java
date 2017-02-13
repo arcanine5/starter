@@ -108,14 +108,14 @@ public class SharingServlet extends HttpServlet {
     } else if (requestingUser == null) {
       resp.sendError(resp.SC_UNAUTHORIZED, "log in to share an album.");
       return;
-    } else if (!(  (new MyUser(requestingUser)).equals(albumToShare.getOwner()  ))) {
-      resp.sendError(resp.SC_UNAUTHORIZED, "You are not the owner. Consult: " + 
+    } else if (!( albumToShare.isEditor(new MyUser(requestingUser))  )) {
+      resp.sendError(resp.SC_UNAUTHORIZED, "You are not an editor. Ask: " + 
           albumToShare.getOwner().getEmail() + " for assistance");
       return;
     }
     
     // Add collaborator TODO: Avoid race conditions. maybe with transactions
-    albumToShare.addCollaborator(new MyUser(newCollab));
+    albumToShare.addEditor(new MyUser(newCollab));
     ObjectifyService.ofy().save().entity(albumToShare).now();
     System.out.println("About to redirect...");
     resp.sendRedirect("/images.jsp?albumName=" + requestedAlbumName);

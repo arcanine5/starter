@@ -39,21 +39,21 @@ public class Album {
   @Id private String name;
   @Index private Date date;
   private MyUser owner;
-  private HashSet<MyUser> collaborators;
-  private boolean restricted; // Whether this album should limit access to the collaborators
+  private HashSet<MyUser> editors;
+  private boolean restricted; // Whether this album should limit access to the editors
   
   
   private Album() {
     this.date = new Date();
     System.out.println("Album created at time: " + this.date);
-    this.collaborators = new HashSet<MyUser>();
+    this.editors = new HashSet<MyUser>();
   }
   
   public Album(String name, MyUser owner, boolean privacy) {
     this();
     this.name = name;
     this.owner = owner;
-    this.collaborators.add(owner);
+    this.editors.add(owner);
     this.restricted = privacy;
   }
   
@@ -67,7 +67,7 @@ public class Album {
     buffer.append("Album: " + this.name + "\n");
     buffer.append("\t Created: " + this.date + "\n");
     buffer.append("\t Owner: " + this.owner + "\n");
-    buffer.append("\t Shared with: " + this.collaborators + "Restricted "+ restricted + "\n");
+    buffer.append("\t Shared with: " + this.editors + "Restricted "+ restricted + "\n");
     
     return buffer.toString();
   }
@@ -76,13 +76,13 @@ public class Album {
     return this.owner;
   }
   
-  public boolean addCollaborator(MyUser user) {
-    System.out.println("Collab count: " + this.collaborators.size());
-    return this.collaborators.add(user);
+  public boolean addEditor(MyUser user) {
+    System.out.println("Collab count: " + this.editors.size());
+    return this.editors.add(user);
   }
   
-  public HashSet<MyUser> getCollaborators() {
-    HashSet<MyUser> copy = new HashSet<>(this.collaborators);
+  public HashSet<MyUser> getEditors() {
+    HashSet<MyUser> copy = new HashSet<>(this.editors);
     return copy;
   }
   
@@ -90,8 +90,8 @@ public class Album {
     return this.restricted;
   }
   
-  public boolean isViewer(MyUser user) {
-    return this.collaborators.contains(user);
+  public boolean isEditor(MyUser user) {
+    return this.editors.contains(user);
   }
 }
 //[END all]
