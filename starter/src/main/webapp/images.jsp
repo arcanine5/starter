@@ -38,7 +38,7 @@
 %>
 
 <p>Hello, ${fn:escapeXml(user.nickname)}! (You can
-    <a href="<%= userService.createLogoutURL(request.getRequestURI() + "?albumName=" + albumName ) %>">sign out</a>.)</p>
+    <a href="<%= userService.createLogoutURL("/albums.jsp") %>">sign out</a>.)</p>
 <%
     } else {
 %>
@@ -74,6 +74,9 @@
           .list();
 
 %>
+
+<p><h1> Album '${fn:escapeXml(albumName)}' </h1></p>
+
 <table style="width:100%" > <tr>
   <td>
     <input type="button" onclick="location.href='/albums.jsp';" value="Back">
@@ -104,12 +107,11 @@
         </fieldset>
       </form>
     </ul>
-    <p> <b> Add Collaborator </b> <p>
     <form  action="/share" method="post" name="addCollab" id="addCollab">
       <fieldset <% if(!userCanEdit) {%> disabled <%} %> >
         <legend> Add Collaborator: </legend>
         Email Address: <input type="email" name="collabName" id="collabName"
-                  placeholder="runexamples.appspot.com" required /> <br>
+                  placeholder="person1@gmail.com" required /> <br>
         Auth Domain:  <input type="text" name="collabDomain" id="collabDomain"
                   placeholder="gmail.com" required /> <br>
                   <input type="hidden" name="albumName" id="albumName" value="<%= albumName %>" >
@@ -129,7 +131,6 @@
 <%
        if (posts.isEmpty()) {
 %>
-<p><h1> Album '${fn:escapeXml(albumName)}' has no messages. </h1></p>
 <%
     } else {
 %>
@@ -194,14 +195,6 @@
 
 <%-- //[END datastore]--%>
 <hr>
-<%-- // Switch Album Form --%>
-<form action="/images.jsp" method="get">
-    <div><input type="text" name="albumName" value="${fn:escapeXml(albumName)}"/></div>
-    <div><input type="submit" value="Switch Album"/></div>
-    <div> <input type="button" value="Added button" onclick='uploadFile(this)'/>  </div>
-</form>
-
-
 
 <script>
   function myFunc() {
@@ -223,8 +216,6 @@
           alert("Select exactly one file");
         } else {
           var theFile = uploadButton.files[0];
-          alert("About to upload image file. File name is: " + theFile.name + " type is: " +
-                                                            theFile.type);
           var postData = theFile;
 
           var request = new XMLHttpRequest();

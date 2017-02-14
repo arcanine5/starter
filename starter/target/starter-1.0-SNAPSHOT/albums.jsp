@@ -11,6 +11,7 @@
 <%@ page import="com.googlecode.objectify.ObjectifyService" %>
 <%@ page import="com.googlecode.objectify.cmd.SimpleQuery" %>
 
+<%@ page import="com.example.starter.MyUser" %>
 <%@ page import="com.example.starter.ImagesServlet" %>
 
 <%-- //[END imports]--%>
@@ -76,13 +77,19 @@
 <p> Displaying Album names here </p>
 <table style="width:100%">
   <tr>
-<% 
+<%
+    int albsInRow = 0;
     for (int idx = 0; idx < albums.size(); idx++) {
       Album curr = albums.get(idx);
+      // Don't show albums the user has not rights to open
+      if ((curr.isRestricted() && (user == null || (!curr.isViewer(new MyUser(user))) ))) {
+        continue;
+      }
     
       // Insert row breaks every few albums
-      if ((idx % MAX_ROW_LEN) == 0) {
+      if (albsInRow >= MAX_ROW_LEN) {
         %> </tr> <tr>  <%
+        albsInRow = 0;
       }
 
 
@@ -110,7 +117,7 @@
     </td>
     <br>
     <%
-
+      albsInRow++;
     }
 %>
   </tr>
@@ -148,12 +155,6 @@
 <%
     }
 %>
-
-
-<script>
-
-
-</script>
 
 
 </body>
