@@ -67,14 +67,13 @@
 
    %>
 <div style="text-align:center;">
-<p><h1> Album '${fn:escapeXml(albumName)}' has no messages. </h1></p>
+<p><h1> Albums:  </h1></p>
 
 <hr>
 <br>
 </div>
 
 <%-- Display Albums by name --%>
-<p> Displaying Album names here </p>
 <table style="width:100%">
   <tr>
 <%

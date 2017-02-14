@@ -62,7 +62,9 @@
          + album.isRestricted() + " you: " + user);
       }
 
-      final boolean userCanEdit = (user != null && (album.isEditor(new MyUser(user))) );
+      final boolean userCanPost = (user != null) && (album.isRestricted() ? 
+          (album.isEditor(new MyUser(user))) : true);
+      final boolean userCanShare = (user != null) && (album.isEditor(new MyUser(user)));
 
     // Run an ancestor query to ensure we see the most up-to-date
     // view of the Greetings belonging to the selected Guestbook.
@@ -88,14 +90,15 @@
       <li> <b> Owner: </b> <%= album.getOwner().getNickname() %> </li>
       <li> <b> Shared with: </b>   </li>
       <form   action="/share" method="post" name="removeCollab" id="removeCollab"> 
-        <fieldset <% if(!userCanEdit) {%> disabled <%} %> >
+        <fieldset <% if(!userCanShare) {%> disabled <%} %> >
         <select name="collabName" size="3" form="removeCollab" required>
           <% for (MyUser currUser : album.getViewers()) { 
             final boolean currCanEdit = (album.isEditor(currUser)) ;
 
             final String permissionDescript = (currCanEdit ? "(can edit)" : "(can view)");
           %>
-          <option value="<%= currUser.getEmail()  %>" name="collabName" id="collabName"> 
+          <option value="<%= currUser.getEmail()  %>" name="collabName" id="collabName" 
+              <% if(album.isOwner((currUser))) {%> disabled <%} %>    > 
                 <%= currUser.getNickname() +" "+ permissionDescript %> </option>
           <%}%>
         </select>
@@ -108,7 +111,7 @@
       </form>
     </ul>
     <form  action="/share" method="post" name="addCollab" id="addCollab">
-      <fieldset <% if(!userCanEdit) {%> disabled <%} %> >
+      <fieldset <% if(!userCanShare) {%> disabled <%} %> >
         <legend> Add Collaborator: </legend>
         Email Address: <input type="email" name="collabName" id="collabName"
                   placeholder="person1@gmail.com" required /> <br>
@@ -134,7 +137,6 @@
 <%
     } else {
 %>
-<p><h1> Album '${fn:escapeXml(albumName)}'. </h1></p>
 <p> <%= album.toString() %> </p>
 
 <%
@@ -166,7 +168,7 @@
 
 <%-- // Post Greeting / Upload file form --%>
 <%  
-    if (!userCanEdit) {
+    if (!userCanPost) {
 %>
 <p> <i> Sign in (and have edit rights) to make a post </i> </p>
 <%

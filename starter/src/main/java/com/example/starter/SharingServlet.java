@@ -51,6 +51,7 @@ import java.nio.channels.Channels;
 
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Work;
 
 
 /**
@@ -67,7 +68,7 @@ public class SharingServlet extends HttpServlet {
 
   // Process the http POST of the form
   @Override
-  public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+  public void doPost(HttpServletRequest req, final HttpServletResponse resp) throws IOException {
     System.out.println("\n\n Sharing Servlet POST");
     
     // Enumerate the parameters of this request
@@ -81,62 +82,77 @@ public class SharingServlet extends HttpServlet {
     }
     
     UserService userService = UserServiceFactory.getUserService();
-    User requestingUser = userService.getCurrentUser();  // Find out who the user is.
+    final User requestingUser = userService.getCurrentUser();  // Find out who the user is.
 
-    String collabEmailAddr = req.getParameter("collabName");
-    String authDomain = req.getParameter("collabDomain");
-    String requestedAlbumName = req.getParameter("albumName");
+    final String collabEmailAddr = req.getParameter("collabName");
+    final String authDomain = req.getParameter("collabDomain");
+    final String requestedAlbumName = req.getParameter("albumName");
     final boolean grantEditAccess = req.getParameter("grantEditAccess") != null;
-    String operation = req.getParameter("operation");
+    final String operation = req.getParameter("operation");
     
     
-    User newCollab = new User(collabEmailAddr, authDomain);
+    final User newCollab = new User(collabEmailAddr, authDomain);
     assert (newCollab != null);
     assert(false);
     
     // Check format of new Collaborator
     System.out.println("User creating album is: " + SharingServlet.userToString(newCollab));
     
-    // Create if name not taken by existing Album
-    Album albumToShare = ObjectifyService.ofy()
-        .load()
-        .key(Key.create(Album.class, requestedAlbumName))
-        .now();
+    Object trash = ObjectifyService.ofy().transact( new Work() {
+      public Object run() {
     
-    // Handle req format and login errors
-    if ((requestedAlbumName == null) || (requestedAlbumName.equals(""))) {
-      resp.sendError(resp.SC_BAD_REQUEST, "Specify the new album name.");
-      return;
-    } else if (requestingUser == null) {
-      resp.sendError(resp.SC_UNAUTHORIZED, "log in to share an album.");
-      return;
-    } else if (!( albumToShare.isEditor(new MyUser(requestingUser))  )) {
-      resp.sendError(resp.SC_UNAUTHORIZED, "You are not an editor. Ask: " + 
-          albumToShare.getOwner().getEmail() + " for assistance");
-      return;
-    }
-    
-    // wipe out existing permissions for this user
-    albumToShare.removeEditor(new MyUser(newCollab));
-    albumToShare.removeViewer(new MyUser(newCollab));
-    
-    if (operation.equals("add")) {
-      System.out.println("Adding collaborator");
-      // Add collaborator TODO: Avoid race conditions. maybe with transactions
-      if (grantEditAccess) {
-        albumToShare.addEditor(new MyUser(newCollab));
-      } else {
-        albumToShare.addViewer(new MyUser(newCollab));
+        // Create if name not taken by existing Album
+        Album albumToShare = ObjectifyService.ofy()
+            .load()
+            .key(Key.create(Album.class, requestedAlbumName))
+            .now();
+        
+        // Handle req format and login errors
+        try {
+          if ((requestedAlbumName == null) || (requestedAlbumName.equals(""))) {
+            resp.sendError(resp.SC_BAD_REQUEST, "Specify the new album name.");
+            return "";
+          } else if (requestingUser == null) {
+            resp.sendError(resp.SC_UNAUTHORIZED, "log in to share an album.");
+            return "";
+          } else if (!( albumToShare.isEditor(new MyUser(requestingUser))  )) {
+            resp.sendError(resp.SC_UNAUTHORIZED, "You are not an editor. Ask: " + 
+                albumToShare.getOwner().getEmail() + " for assistance");
+            return "";
+          }
+        } catch (IOException e) {
+          System.out.println("Io exception in Sharing servlet " + e);
+          return "";
+        }
+        
+        // wipe out existing permissions for this user
+        albumToShare.removeEditor(new MyUser(newCollab));
+        albumToShare.removeViewer(new MyUser(newCollab));
+        
+        if (operation.equals("add")) {
+          System.out.println("Adding collaborator");
+          // Add collaborator TODO: Avoid race conditions. maybe with transactions
+          if (grantEditAccess) {
+            albumToShare.addEditor(new MyUser(newCollab));
+          } else {
+            albumToShare.addViewer(new MyUser(newCollab));
+          }
+        } else {
+          System.out.println("Removing collaborator");
+        }
+        
+        
+        ObjectifyService.ofy().save().entity(albumToShare).now();
+        try {
+          System.out.println("About to redirect...");
+          resp.sendRedirect("/images.jsp?albumName=" + requestedAlbumName);
+        } catch (IOException e) {
+          System.out.println("Redirect failed.");
+        }
+        
+        return "";
       }
-    } else {
-      System.out.println("Removing collaborator");
-    }
-    
-    
-    ObjectifyService.ofy().save().entity(albumToShare).now();
-    System.out.println("About to redirect...");
-    resp.sendRedirect("/images.jsp?albumName=" + requestedAlbumName);
-    
+    });
   }
   
   @Override

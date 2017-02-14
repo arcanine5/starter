@@ -78,6 +78,10 @@ public class Album {
     return this.owner;
   }
   
+  public boolean isOwner(MyUser u) {
+    return this.owner.equals(u);
+  }
+  
   public boolean addEditor(MyUser user) {
     System.out.println("Collab count: " + this.editors.size());
     return this.editors.add(user);

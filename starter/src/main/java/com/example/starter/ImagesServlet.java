@@ -170,6 +170,7 @@ public class ImagesServlet extends HttpServlet {
     String reqURI = req.getRequestURI();
     String reqQstring = req.getQueryString();
     
+    
     System.out.println("\n\nRequest URL: " + reqURL + "\n Request URI:" + 
         reqURI + "\n Query String:" + reqQstring);
     
