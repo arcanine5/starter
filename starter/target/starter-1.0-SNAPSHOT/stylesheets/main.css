@@ -2,3 +2,6 @@ body {
     font-family: Verdana, Helvetica, sans-serif;
     background-color: #B1B1B1;
 }
+img {
+    max-width: 1280px;
+}

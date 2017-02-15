@@ -1,4 +1,7 @@
 body {
     font-family: Verdana, Helvetica, sans-serif;
-    background-color: #AAAAB3;
+    background-color: #B1B1B1;
+}
+img {
+    max-width: 1024px;
 }

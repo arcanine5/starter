@@ -115,8 +115,8 @@
         <legend> Add Collaborator: </legend>
         Email Address: <input type="email" name="collabName" id="collabName"
                   placeholder="person1@gmail.com" required /> <br>
-        Auth Domain:  <input type="text" name="collabDomain" id="collabDomain"
-                  placeholder="gmail.com" required /> <br>
+                 <input type="hidden" name="collabDomain" id="collabDomain"
+                  placeholder="gmail.com" value="gmail.com" required /> <br>
                   <input type="hidden" name="albumName" id="albumName" value="<%= albumName %>" >
                   <input type="checkbox" name="grantEditAccess" id="grantEditAccess"> Can Edit <br>
                   <input type="hidden" name="operation" id="operation" value="add" >
@@ -137,7 +137,6 @@
 <%
     } else {
 %>
-<p> <%= album.toString() %> </p>
 
 <%
       // Display all Image posts
@@ -158,7 +157,12 @@
 %>
 <p><b>${fn:escapeXml(greeting_user)}</b> posted (on:<%= greeting.date.toString() %> ):</p>
 <blockquote>${fn:escapeXml(greeting_content)}</blockquote>
-<img src="<%= greeting.imageFilename + (ImagesServlet.APPEND_UUID_TO_FILENAME ? greeting.getUuidString() : "") %>">
+<% final String imageSrc = greeting.imageFilename + (ImagesServlet.APPEND_UUID_TO_FILENAME ? greeting.getUuidString() : "");  %>
+<a href="<%= imageSrc %>">
+  
+    <img src="<%= imageSrc %>">
+  
+</a>
 <%
         }
     }
@@ -182,7 +186,7 @@
     <input type="hidden" name="albumName" value="${fn:escapeXml(albumName)}" required/>
     <div>
             Bucket: <input type="text" name="bucket" value="runexamples.appspot.com" required />
-            File Name: <input type="text" name="fileName" required />
+            <input type="hidden" name="fileName" value="cat.gif" required />
             <br /> File Contents:
             
             <input type="file" name="pic" id="pic" accept="image/*" required>
